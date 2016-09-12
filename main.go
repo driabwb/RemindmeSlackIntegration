@@ -21,6 +21,9 @@ type Reminder struct{
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
   if r.Method != "POST" {
     log.Print("There was a non-POST message sent to the endpoint")
+    w.WriteHeader(405)
+    w.Write([]byte("Error: POST only"))
+    return
   }
  r.ParseForm()
  token := r.Form["token"]
