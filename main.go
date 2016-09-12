@@ -1,7 +1,7 @@
 package main
 
 import (
-  "encoding/json"
+// "encoding/json"
   "net/http"
   "log"
   "os"
@@ -14,7 +14,7 @@ type Message struct{
 
 type Reminder struct{
   context []Message
-  reminderTime time
+  reminderTime time.Time
   user_name string
 }
 
@@ -26,14 +26,15 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
  token := r.Form["token"]
  channel_id := r.Form["channel_id"]
  user_name := r.Form["user_name"]
- w.Write("Your reminder has been set.")
+ log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
+ w.Write([]byte("Your reminder has been set."))
 }
 
 func handleReminderTrigger(reminder *Reminder){
   log.Println("handle reminder trigger")
 }
 
-func httpserver(port int, done chan bool){
+func httpserver(port string, done chan bool){
   log.Println("Server has started on " + port)
   http.HandleFunc("/api/reminder", handleNewRequest)
   log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -44,7 +45,7 @@ func main(){
   done := make(chan bool, 1)
   port := os.Getenv("PORT")
   if port == "" {
-    port = 8080
+    port = "8080"
   }
   go httpserver(port, done)
   <-done
