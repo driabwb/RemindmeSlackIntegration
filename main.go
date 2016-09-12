@@ -15,16 +15,20 @@ func handleReminderTrigger(reminder *Reminder){
   log.Println("handle reminder trigger");
 }
 
-func httpserver(port int){
+func httpserver(port int, done chan bool){
   log.Println("Server has started on " + port)
   http.HandleFunc("/api/reminder", handleNewRequest)
   log.Fatal(http.ListenAndServe(":"+port, nil))
+  done <- true
 }
 
 func main(){
+  done := make(chan bool, 1)
   port := os.Getenv("PORT")
   if port == "" {
     port = 8080
   }
-  go httpserver(port)
+  go httpserver(port, done)
+  <-done
 }
+
