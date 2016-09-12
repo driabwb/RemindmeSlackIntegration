@@ -5,14 +5,32 @@ import (
   "net/http"
   "log"
   "os"
+  "time"
 )
 
+type Message struct{
+  message string
+}
+
+type Reminder struct{
+  context []Message
+  reminderTime time
+  user_name string
+}
+
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
-  log.Println("handle request")
+  if r.Method != "POST" {
+    log.Print("There was a non-POST message sent to the endpoint")
+  }
+ r.ParseForm()
+ token := r.Form["token"]
+ channel_id := r.Form["channel_id"]
+ user_name := r.Form["user_name"]
+ w.Write("Your reminder has been set.")
 }
 
 func handleReminderTrigger(reminder *Reminder){
-  log.Println("handle reminder trigger");
+  log.Println("handle reminder trigger")
 }
 
 func httpserver(port int, done chan bool){
