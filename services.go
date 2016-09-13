@@ -2,7 +2,6 @@ package main
 
 import (
   "os"
-  "fmt"
   "bufio"
   "strings"
 )
@@ -34,6 +33,6 @@ func setupEnvironment() {
   }
 }
 
-func main() {
+func init() {
   setupEnvironment()
 }
