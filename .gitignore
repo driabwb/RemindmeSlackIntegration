@@ -27,3 +27,6 @@ _testmain.go
 *~
 *.swo
 *.swp
+
+# Project Files
+.env
