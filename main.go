@@ -1,12 +1,23 @@
 package main
 
 import (
-// "encoding/json"
+ "encoding/json"
   "net/http"
   "log"
   "os"
   "time"
 )
+
+var TOKEN string = os.Getenv("SLACK_TOKEN")
+const APIBASEURL string = "https://slack.com/api/"
+var APIENDPOINTS = map[string]map[string]string{
+  "history": {"endpoint": "channels.history", "param": "channel"},
+  "user": {"endpoint": "users.info", "param": "user"},
+}
+
+type JsonObject struct{
+  Obj map[string]string
+}
 
 type Message struct{
   message string
@@ -16,6 +27,26 @@ type Reminder struct{
   context []Message
   reminderTime time.Time
   user_name string
+}
+
+func getJson(url string, target interface{}) error {
+  r, err := http.Get(url)
+  if err != nil {
+      return err
+  }
+  defer r.Body.Close()
+
+  return json.NewDecoder(r.Body).Decode(target)
+}
+
+func makeAPICall(endpoint map[string]string, param map[string]string) *JsonObject {
+  result := new(JsonObject)
+  url := APIBASEURL + endpoint["endpoint"] + "?token=" + TOKEN
+  if endpoint_param, ok := endpoint["param"]; ok {
+    url += "&" + endpoint_param + "=" + param[endpoint_param]
+  }
+  getJson(url, result)
+  return result
 }
 
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
