@@ -1,7 +1,7 @@
 package main
 
 import (
-// "encoding/json"
+//  "encoding/json"
   "net/http"
   "log"
   "os"
@@ -9,7 +9,8 @@ import (
 )
 
 type Message struct{
-  message string
+  Message string
+  Author  string
 }
 
 type Reminder struct{
