@@ -6,27 +6,30 @@ import (
   "log"
   "os"
   "time"
+  "strings"
 )
 
-var TOKEN string = os.Getenv("SLACK_TOKEN")
+var TOKEN string
 const APIBASEURL string = "https://slack.com/api/"
 var APIENDPOINTS = map[string]map[string]string{
   "history": {"endpoint": "channels.history", "param": "channel"},
   "user": {"endpoint": "users.info", "param": "user"},
 }
 
-type JsonObject struct{
-  Obj map[string]string
+type HistoryAPIResponse struct{
+  Messages []Message
 }
 
 type Message struct{
-  message string
+  Text string
+  User string
+  Ts string
 }
 
 type Reminder struct{
-  context []Message
-  reminderTime time.Time
-  user_name string
+  Context []Message
+  ReminderTime time.Time
+  User string
 }
 
 func getJson(url string, target interface{}) error {
@@ -39,8 +42,8 @@ func getJson(url string, target interface{}) error {
   return json.NewDecoder(r.Body).Decode(target)
 }
 
-func makeAPICall(endpoint map[string]string, param map[string]string) *JsonObject {
-  result := new(JsonObject)
+func makeAPICall(endpoint map[string]string, param map[string]string) *HistoryAPIResponse {
+  result := new(HistoryAPIResponse)
   url := APIBASEURL + endpoint["endpoint"] + "?token=" + TOKEN
   if endpoint_param, ok := endpoint["param"]; ok {
     url += "&" + endpoint_param + "=" + param[endpoint_param]
@@ -61,6 +64,7 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
  channel_id := r.Form["channel_id"]
  user_name := r.Form["user_name"]
  log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
+ makeAPICall(APIENDPOINTS["history"], map[string]string{"channel": strings.Join(channel_id, ",")})
  w.Write([]byte("Your reminder has been set."))
 }
 
