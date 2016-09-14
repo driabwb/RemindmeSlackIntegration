@@ -32,7 +32,3 @@ func setupEnvironment() {
     s,e = Readln(reader)
   }
 }
-
-func init() {
-  setupEnvironment()
-}

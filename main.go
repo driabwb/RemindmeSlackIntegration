@@ -75,6 +75,11 @@ func httpserver(port string, done chan bool){
   done <- true
 }
 
+func init(){
+  setupEnvironment()
+  TOKEN = os.Getenv("SLACK_TOKEN")
+}
+
 func main(){
   done := make(chan bool, 1)
   port := os.Getenv("PORT")
