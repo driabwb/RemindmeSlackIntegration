@@ -1,21 +1,19 @@
 package main
 
 import (
-// "encoding/json"
   "net/http"
   "log"
   "os"
   "time"
+  "strings"
 )
 
-type Message struct{
-  message string
-}
+var TOKEN string
 
 type Reminder struct{
-  context []Message
-  reminderTime time.Time
-  user_name string
+  Context []Message
+  ReminderTime time.Time
+  User string
 }
 
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
@@ -25,12 +23,17 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
     w.Write([]byte("Error: POST only"))
     return
   }
- r.ParseForm()
- token := r.Form["token"]
- channel_id := r.Form["channel_id"]
- user_name := r.Form["user_name"]
- log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
- w.Write([]byte("Your reminder has been set."))
+  r.ParseForm()
+  token := r.Form["token"]
+  channel_id := r.Form["channel_id"]
+  user_name := r.Form["user_name"]
+  log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
+  //history, err := getHistory(strings.Join(channel_id, ","))
+  if err != nil {
+    log.Print("Houston has a problem")
+    log.Fatal(err)
+  }
+  w.Write([]byte("Your reminder has been set."))
 }
 
 func handleReminderTrigger(reminder *Reminder){
@@ -42,6 +45,11 @@ func httpserver(port string, done chan bool){
   http.HandleFunc("/api/reminder", handleNewRequest)
   log.Fatal(http.ListenAndServe(":"+port, nil))
   done <- true
+}
+
+func init(){
+  setupEnvironment()
+  TOKEN = os.Getenv("SLACK_TOKEN")
 }
 
 func main(){

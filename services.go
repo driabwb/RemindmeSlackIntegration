@@ -2,7 +2,6 @@ package main
 
 import (
   "os"
-  "fmt"
   "bufio"
   "strings"
 )
@@ -32,8 +31,4 @@ func setupEnvironment() {
 
     s,e = Readln(reader)
   }
-}
-
-func main() {
-  setupEnvironment()
 }
