@@ -93,3 +93,35 @@ func (cdb *CassandraDB) DeleteRequest(timestamp time.Time) error{
   return err
 }
 
+func (cdb *CassandraDB) InsertUserData(user User) error{
+  err := cdb.session.Query(
+    `INSERT INTO Users (id, firstname, lastname, name) VALUES (?, ?, ?, ?)`,
+    user.Id, user.FirstName, user.LastName, user.User_name,
+  ).Exec()
+  if nil != err {
+    log.Println("Insert User Data")
+    log.Println(err)
+    return err
+  }
+  return err
+}
+
+func (cdb *CassandraDB) GetUser(id string) (*User, error){
+  user := new(User)
+  err := cdb.session.Query(
+    `SELECT id, firstname, lastname, name FROM Users WHERE id = ?`,
+    id,
+  ).Consistency(gocql.One).Scan(
+                                &user.Id,
+                                &user.FirstName,
+                                &user.LastName,
+                                &user.User_name,
+                              )
+  if nil != err {
+    log.Println("Get User Error")
+    log.Println(err)
+    return nil, err
+  }
+  return user, err
+}
+
