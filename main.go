@@ -17,6 +17,13 @@ type Reminder struct{
   User_name string
 }
 
+type User struct{
+  Id string
+  FirstName string
+  LastName string
+  User_name string
+}
+
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
   if r.Method != "POST" {
     log.Print("There was a non-POST message sent to the endpoint")
