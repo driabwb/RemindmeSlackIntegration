@@ -24,7 +24,14 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
     w.Write([]byte("Error: POST only"))
     return
   }
-  r.ParseForm()
+  err := r.ParseForm()
+  if err != nil {
+    log.Print(err)
+    w.WriteHeader(400)
+    w.Write([]byte("Error: Invalid form encoding"))
+    return
+  }
+
   token := r.Form["token"]
   channel_id := r.Form["channel_id"]
   user_name := r.Form["user_name"]
