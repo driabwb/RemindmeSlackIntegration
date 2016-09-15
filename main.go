@@ -5,7 +5,7 @@ import (
   "log"
   "os"
   "time"
-  "strings"
+  //"strings"
 )
 
 var TOKEN string
@@ -13,7 +13,7 @@ var TOKEN string
 type Reminder struct{
   Context []Message
   ReminderTime time.Time
-  User string
+  User_name string
 }
 
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
@@ -29,10 +29,6 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
   user_name := r.Form["user_name"]
   log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
   //history, err := getHistory(strings.Join(channel_id, ","))
-  if err != nil {
-    log.Print("Houston has a problem")
-    log.Fatal(err)
-  }
   w.Write([]byte("Your reminder has been set."))
 }
 
