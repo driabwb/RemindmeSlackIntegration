@@ -79,4 +79,17 @@ func (cdb *CassandraDB) ReadNextRequest() (*Reminder, error){
   return reminder, err
 }
 
+func (cdb *CassandraDB) DeleteRequest(timestamp time.Time) error{
+  date := timestamp.YearDay()
+  err := cdb.session.Query(
+    `DELETE FROM Messages WHERE date = ? AND alertTime = ?`,
+    date, timestamp,
+  ).Exec()
+  if nil != err {
+    log.Println("Delete Request Error")
+    log.Println(err)
+    return err
+  }
+  return err
+}
 
