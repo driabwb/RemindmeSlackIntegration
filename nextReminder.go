@@ -2,22 +2,24 @@ package main
 
 import (
   "time"
+  "log"
 )
 
-func nextReminder(exit chan bool, output <-chan Reminder, check chan<- Reminder, next Reminder) {
+func nextReminder(exit chan bool, output chan<- Reminder, check <-chan Reminder, next Reminder) {
   for {
-    sendTime := time.After(next.ReminderTime - time.Now())
+    sendTime := time.After(next.ReminderTime.Sub(time.Now()))
     select {
     case <-sendTime:
       log.Println("Send Reminder")
-      check <- next
+      output <- next
       log.Println("Get Next Reminder")
-    case newTime <-check:
-      if newTime.Before(next) {
-        next = newTime
+    case newReminder := <-check:
+      if newReminder.ReminderTime.Before(next.ReminderTime) {
+        next = newReminder
       }
     case <-exit:
       exit<-true
       return
+    }
   }
 }
