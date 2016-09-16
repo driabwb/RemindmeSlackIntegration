@@ -17,7 +17,7 @@ func nextReminder(exit chan bool, output <-chan Reminder, check chan<- Reminder,
         next = newTime
       }
     case <-exit:
-      done<-true
+      exit<-true
       return
   }
 }
