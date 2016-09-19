@@ -78,6 +78,14 @@ func init(){
 }
 
 func main(){
+  if 2 <= len(os.Args) && "-s" == os.Args[1] {
+    setupDB("cassandraInitScript.cql")
+  }
+  if 2 <= len(os.Args) && "-d" == os.Args[1] {
+    setupDB("cassandraDestroyScript.cql")
+    return
+  }
+
   done := make(chan bool, 1)
   port := os.Getenv("PORT")
   if port == "" {
