@@ -6,6 +6,7 @@ import (
 )
 
 func TestNextReminderExit(t *testing.T){
+  t.Parallel()
   exit := make(chan bool)
   output := make(chan Reminder)
   check := make(chan Reminder)
@@ -21,7 +22,25 @@ func TestNextReminderExit(t *testing.T){
   }
 }
 
+func TestNextReminderOutput(t *testing.T){
+  t.Parallel()
+  exit := make(chan bool)
+  output := make(chan Reminder)
+  check := make(chan Reminder)
+  var r Reminder
+  r.ReminderTime = time.Now().Add(time.Second * 2)
+  go nextReminder(exit, output, check, r)
+  select {
+    case <-output:
+      return
+    case <- time.After(time.Second * 5):
+      t.Error("The nextReminder did not get sent")
+  }
+  exit <- true
+}
+
 func TestNextReminderSwap(t *testing.T) {
+  t.Parallel()
   exit := make(chan bool)
   output := make(chan Reminder)
   check := make(chan Reminder)
