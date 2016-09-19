@@ -10,6 +10,19 @@ import (
   "github.com/gocql/gocql"
 );
 
+type ReminderDB interface {
+  Init() error
+  Close()
+  InsertRequest(*Reminder) error
+  ReadNextRequest() (*Reminder, error)
+  DeleteRequest(time.Time) error
+}
+
+type UserDB interface {
+  InsertUserData(User) error
+  GetUser(string) (*User, error)
+}
+
 type CassandraDB struct{
   once sync.Once
   session *gocql.Session
