@@ -23,6 +23,8 @@ type User struct{
   User_name string
 }
 
+var check chan Reminder
+
 func handleNewRequest(w http.ResponseWriter, r *http.Request){
   if r.Method != "POST" {
     log.Print("There was a non-POST message sent to the endpoint")
@@ -50,18 +52,37 @@ func httpserver(port string, done chan bool){
   done <- true
 }
 
+func getNextReminder() *Reminder{
+  var db CassandraDB
+  db.Init()
+  defer db.Close()
+
+  rem, err := db.ReadNextRequest()
+  if nil != err {
+    log.Fatal(err)
+    return nil
+  }
+  return rem
+}
+
 func init(){
   setupEnvironment()
   TOKEN = os.Getenv("SLACK_TOKEN")
 }
 
 func main(){
-  done := make(chan bool, 1)
+  httpServerDone := make(chan bool, 1)
+  nextReminderDone := make(chan bool, 1)
+  output := make(chan Reminder)
   port := os.Getenv("PORT")
   if port == "" {
     port = "8080"
   }
-  go httpserver(port, done)
-  <-done
+  go httpserver(port, httpServerDone)
+  first := *getNextReminder()
+  go nextReminder(nextReminderDone, output, check, first)
+  <-httpServerDone
+  nextReminderDone <- true
+  <-nextReminderDone
 }
 

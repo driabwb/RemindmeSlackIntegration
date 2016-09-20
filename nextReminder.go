@@ -13,6 +13,7 @@ func nextReminder(exit chan bool, output chan<- Reminder, check <-chan Reminder,
       log.Println("Send Reminder")
       output <- next
       log.Println("Get Next Reminder")
+      next = *getNextReminder()
     case newReminder := <-check:
       if newReminder.ReminderTime.Before(next.ReminderTime) {
         next = newReminder
