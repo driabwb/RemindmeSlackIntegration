@@ -30,3 +30,9 @@ _testmain.go
 
 # Project Files
 .env
+
+# Binary
+RemindmeSlackIntegration
+
+# Temp Dir
+/tmp

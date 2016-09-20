@@ -22,11 +22,16 @@ type Message struct {
   Text string
   User string
   Ts string
+  username string
 }
 
 type UserAPIResponse struct {
+  User UserAPIResponseUser
+}
+
+type UserAPIResponseUser struct {
   Id string
-  User string
+  Name string
   Profile UserAPIResponseProfile
 }
 
@@ -69,7 +74,7 @@ func getHistory(channel string) (*HistoryAPIResponse, error) {
   return response, nil
 }
 
-func getUser(user_id string) (*UserAPIResponse, error) {
+func getUserData(user_id string) (*UserAPIResponse, error) {
   response := new(UserAPIResponse)
   err := makeAPICall(APIENDPOINTS["user"], map[string]string{"user": user_id}, response)
 

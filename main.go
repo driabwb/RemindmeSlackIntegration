@@ -5,7 +5,7 @@ import (
   "log"
   "os"
   "time"
-  //"strings"
+  "strconv"
 )
 
 var TOKEN string
@@ -15,6 +15,7 @@ type Reminder struct{
   Context []Message
   ReminderTime time.Time
   User_name string
+  User_id string
 }
 
 type User struct{
@@ -41,12 +42,14 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
 
   token := r.Form["token"]
   channel_id := r.Form["channel_id"]
-  user_name := r.Form["user_name"]
+  user_id:= r.Form["user_id"]
+  time_delta := r.Form["text"]
 
   if len(token) == 0 {
     log.Print("No token provided")
     w.WriteHeader(405)
     w.Write([]byte("Error: Token required"))
+    return
   }
   if token[0] != SECRET_TOKEN {
     log.Print("Unauthorized POST attempt")
@@ -55,8 +58,16 @@ func handleNewRequest(w http.ResponseWriter, r *http.Request){
     return
   }
 
-  log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_name: " + user_name[0])
-  //history, err := getHistory(strings.Join(channel_id, ","))
+  td, err := strconv.Atoi(time_delta[0])
+  if err != nil {
+    log.Print("Error: Time delta integer conversion failed")
+    w.WriteHeader(400)
+    w.Write([]byte("Invalid time"))
+    return
+  }
+
+  createReminder(channel_id[0], user_id[0], td)
+  log.Print("Token: " + token[0] + "| channel_id: " + channel_id[0] + "| user_id: " + user_id[0])
   w.Write([]byte("Your reminder has been set."))
 }
 
