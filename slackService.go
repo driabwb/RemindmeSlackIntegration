@@ -26,8 +26,12 @@ type Message struct {
 }
 
 type UserAPIResponse struct {
+  User UserAPIResponseUser
+}
+
+type UserAPIResponseUser struct {
   Id string
-  User string
+  Name string
   Profile UserAPIResponseProfile
 }
 

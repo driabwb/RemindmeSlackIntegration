@@ -24,33 +24,34 @@ func createReminder(channel_id string, user_id string, time_delta int) error {
 
   reminder.Context = history.Messages
 
+  for _, message := range history.Messages {  // Check DB for users
+    user_data, err := db.GetUser(message.User)
+    if err == nil { // User in DB?
+      message.username = user_data.User_name
+    } else {
+      //TODO: Check error is id not found error
+      slack_user, err := getUserData(message.User)
+      if err != nil {
+        return err
+      }
+      user_data = &User{
+                    Id: slack_user.User.Id,
+                    User_name: slack_user.User.Name,
+                    FirstName: slack_user.User.Profile.First_name,
+                    LastName: slack_user.User.Profile.Last_name,
+      }
+      db.InsertUserData(*user_data)
+      message.username = user_data.User_name
+      log.Print(message)
+    }
+    reminder.Context = append(reminder.Context, message)
+
+  }
+
   err = db.InsertRequest(reminder)
   if err != nil {
     return err
   }
 
-  if err == nil {
-    log.Print("here?")
-  }
-
-  /*
-   *for _, message := range history.Messages {  // Check DB for users
-   *  user_data, err := db.GetUser(message.User)
-   *  if err != nil { // User not in DB?
-   *    //TODO: Check error is id not found error
-   *    slack_user, err := getUserData(message.User)
-   *    if err != nil {
-   *      return err
-   *    }
-   *    user_data = &User{
-   *                  Id: slack_user.Id,
-   *                  User_name: slack_user.User,
-   *                  FirstName: slack_user.Profile.First_name,
-   *                  LastName: slack_user.Profile.Last_name,
-   *    }
-   *    db.InsertUserData(*user_data)
-   *  }
-   *}
-   */
   return nil
 }
