@@ -6,6 +6,8 @@ import (
   "os"
   "time"
   "strconv"
+
+  "gopkg.in/tylerb/graceful.v1"
 )
 
 var TOKEN string
@@ -77,8 +79,9 @@ func handleReminderTrigger(reminder *Reminder){
 
 func httpserver(port string, done chan bool){
   log.Println("Server has started on " + port)
-  http.HandleFunc("/api/reminder", handleNewRequest)
-  log.Fatal(http.ListenAndServe(":"+port, nil))
+  mux := http.NewServeMux()
+  mux.HandleFunc("/api/reminder", handleNewRequest)
+  graceful.Run(":"+port, time.Second, mux)
   done <- true
 }
 

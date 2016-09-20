@@ -3,6 +3,7 @@ package main
 import (
   "encoding/json"
   "net/http"
+  "net/url"
   "log"
   "io"
   //"io/ioutil"
@@ -12,6 +13,7 @@ const APIBASEURL string = "https://slack.com/api/"
 var APIENDPOINTS = map[string]string {
   "history": "channels.history",
   "user": "users.info",
+  "message": "chat.postMessage",
 }
 
 type HistoryAPIResponse struct {
@@ -45,19 +47,31 @@ func getJson(json_to_decode io.Reader, target interface{}) error {
 }
 
 func makeAPICall(endpoint string, params map[string]string, dest interface{}) error {
-  url := APIBASEURL + endpoint + "?token=" + TOKEN
-  if len(params) != 0 {
-    for param, val := range params {
-      url += "&" + param + "=" + val
-    }
+  params["token"] = TOKEN
+  var Url *url.URL
+  Url, err := url.Parse(APIBASEURL)
+  if err != nil {
+    log.Print("Base API Parse failure")
+    return err
+  }
+  Url.Path += endpoint
+  parameters := url.Values{}
+  for param, val := range params {
+    parameters.Add(param, val)
   }
 
-  res, err := http.Get(url)
+  Url.RawQuery = parameters.Encode()
+
+  log.Print(Url.String())
+  res, err := http.Get(Url.String())
   defer res.Body.Close()
   if err != nil {
     return err
   }
 
+  if dest == nil {
+    return nil
+  }
   return getJson(res.Body, dest)
 }
 
@@ -85,4 +99,15 @@ func getUserData(user_id string) (*UserAPIResponse, error) {
   }
 
   return response, nil
+}
+
+func sendMessage(channel string, text string) error {
+  err := makeAPICall(APIENDPOINTS["message"], map[string]string{"username": "RemindMe Bot", "channel": channel, "text": text, "as_user": "False", "icon_emoji": ":sums:"}, nil)
+
+  if err != nil {
+    log.Print("Error: Sending messaage failed")
+    log.Print(err)
+    return err
+  }
+  return nil
 }
