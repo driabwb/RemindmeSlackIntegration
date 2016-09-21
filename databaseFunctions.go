@@ -10,6 +10,8 @@ import (
   "github.com/gocql/gocql"
 );
 
+var errNotFound = gocql.ErrNotFound
+
 type ReminderDB interface {
   Init() error
   Close()
@@ -78,6 +80,9 @@ func (cdb *CassandraDB) ReadNextRequest() (*Reminder, error){
                                 &messages,
                                 &reminder.User_name,
                                )
+  if err == errNotFound {
+    return nil, err
+  }
   if nil != err {
     log.Println("Read Request Error")
     log.Println(err)

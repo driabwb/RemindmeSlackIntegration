@@ -5,7 +5,7 @@ import (
   "log"
 )
 
-func createReminder(channel_id string, user_id string, time_delta int) error {
+func createReminder(channel_id string, user_id string, time_delta int, check chan Reminder) error {
   var db CassandraDB
   db.Init()
   defer db.Close()
@@ -53,5 +53,17 @@ func createReminder(channel_id string, user_id string, time_delta int) error {
     return err
   }
 
+  check <- *reminder
   return nil
+}
+
+func sendReminder(rem chan Reminder, done chan bool) {
+  for {
+    select {
+      case <- done:
+        return
+      case r := <- rem:
+        sendMessage("@" + r.User_name, r.Context[0].Text)
+    }
+  }
 }
